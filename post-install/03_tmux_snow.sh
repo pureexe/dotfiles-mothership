@@ -42,7 +42,7 @@ set -g @tmux_power_date_format '%b %d'  # This will display the date as DEC 22
 set -g @tmux_power_time_format '%H:%M'  # This will display the time as 15:19
 set -g @tmux_power_show_user            false
 set -g @tmux_power_show_host            false
-set -g @tmux_power_show_session         false
+set -g @tmux_power_show_session         true
 set -g @tmux_power_theme 'snow'
 run-shell ~/.tmux-power/tmux-power.tmux
 EOL
