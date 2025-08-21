@@ -42,6 +42,14 @@ if ! grep -q "PURE_THEME" ~/.zshrc; then
 # Pure prompt theme
 fpath+=("$HOME/.zsh/pure")
 autoload -U promptinit; promptinit
+zstyle ':prompt:pure:path' color yellow
+zstyle ':prompt:pure:prompt:*' color cyan
+zstyle ':prompt:pure:user' color green
+zstyle ':prompt:pure:virtualenv' color green
+zstyle ':prompt:pure:host' color cyan
+zstyle ':prompt:pure:user:root' color red
+zstyle ':prompt:pure:execution_time' color red
+zstyle ':prompt:pure:git:stash' show yes
 prompt pure
 EOT
 fi
