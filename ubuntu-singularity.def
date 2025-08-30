@@ -1,30 +1,133 @@
 Bootstrap: docker
-From: ubuntu:22.04
+From: ubuntu:24.04
 
 %post
-    # Update base system
+    set -e
+
+    echo "[*] Updating system..."
     apt-get update && apt-get install -y \
         wget \
         bzip2 \
         ca-certificates \
         git \
         curl \
+        zsh \
+        locales \
+        nano \
+        neovim \
+        unzip \
+        build-essential \
+        pkg-config \
+        libssl-dev \
         && rm -rf /var/lib/apt/lists/*
 
-    # Install Miniconda
-    export CONDA_DIR=/opt/conda
+    # Set UTF-8 locale
+    locale-gen en_US.UTF-8
+    update-locale LANG=en_US.UTF-8
+
+    # --- Miniconda installation ---
+    CONDA_DIR=/opt/conda
     wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
     bash /tmp/miniconda.sh -b -p $CONDA_DIR
     rm /tmp/miniconda.sh
-
-    # Set up Conda
     $CONDA_DIR/bin/conda clean -afy
-    ln -s $CONDA_DIR/etc/profile.d/conda.sh /etc/profile.d/conda.sh
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> /etc/bash.bashrc
-    echo "conda activate base" >> /etc/bash.bashrc
+
+    # Initialize Conda system-wide (works with --containall)
+    /opt/conda/bin/conda init zsh --system
+
+    # --- fzf installation ---
+    git clone --depth 1 https://github.com/junegunn/fzf.git /opt/fzf
+    /opt/fzf/install --bin --key-bindings --completion --no-update-rc
+
+    # --- rclone installation ---
+    curl -Of https://downloads.rclone.org/rclone-current-linux-amd64.zip
+    unzip rclone-current-linux-amd64.zip
+    cp rclone-*-linux-amd64/rclone /usr/local/bin/
+    chmod 755 /usr/local/bin/rclone
+    rm -rf rclone-*-linux-amd64 rclone-current-linux-amd64.zip
+
+    # --- dust installation ---
+    curl -sSf https://raw.githubusercontent.com/bootandy/dust/master/install.sh | sh
+
+    # --- NvChad installation ---
+    git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1
+
+    # --- Zsh, Oh My Zsh, Pure theme setup for --containall ---
+    ZDOTDIR=/etc/zsh
+    OMZ_DIR=$ZDOTDIR/oh-my-zsh
+    PURE_DIR=$ZDOTDIR/pure
+
+    mkdir -p $ZDOTDIR
+
+    echo "[*] Installing Oh My Zsh..."
+    git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git $OMZ_DIR
+
+    echo "[*] Installing Pure prompt..."
+    git clone https://github.com/sindresorhus/pure.git $PURE_DIR
+
+    # System-wide zshrc
+    cat > $ZDOTDIR/zshrc <<'EOF'
+# System-wide Zsh config for Singularity --containall
+export ZDOTDIR=/etc/zsh
+export SHELL=/bin/zsh
+
+# Load Oh My Zsh
+export ZSH="$ZDOTDIR/oh-my-zsh"
+ZSH_THEME="robbyrussell"
+plugins=(git)
+
+source "$ZSH/oh-my-zsh.sh"
+
+# Pure prompt
+fpath+=$ZDOTDIR/pure
+autoload -U promptinit; promptinit
+prompt pure
+
+# Show 📦 emoji for container
+PURE_PROMPT_SYMBOL="📦"
+
+# fzf key bindings & completion
+[ -f /opt/fzf/shell/key-bindings.zsh ] && source /opt/fzf/shell/key-bindings.zsh
+[ -f /opt/fzf/shell/completion.zsh ] && source /opt/fzf/shell/completion.zsh
+
+# System-wide Conda initialization
+[ -f /etc/profile.d/conda.sh ] && source /etc/profile.d/conda.sh
+conda activate base
+
+# Basic options
+autoload -Uz compinit && compinit
+
+PURE_CMD_MAX_EXEC_TIME=10
+
+zstyle ':prompt:pure:path' color yellow
+zstyle ':prompt:pure:prompt:*' color cyan
+zstyle ':prompt:pure:user' color green
+zstyle ':prompt:pure:virtualenv' color green
+zstyle ':prompt:pure:host' color 93
+zstyle ':prompt:pure:user:root' color red
+zstyle ':prompt:pure:execution_time' color red
+zstyle :prompt:pure:git:stash show yes
+
+setopt autocd
+setopt prompt_subst
+EOF
+
+    # zshenv ensures ZDOTDIR is respected
+    cat > $ZDOTDIR/zshenv <<'EOF'
+export ZDOTDIR=/etc/zsh
+EOF
+
+    chmod -R 755 $ZDOTDIR
+
+    # Set zsh as default shell
+    chsh -s /usr/bin/zsh || true
 
 %environment
-    export PATH=/opt/conda/bin:$PATH
+    export PATH=/opt/conda/bin:/usr/local/bin:$PATH
+    export SHELL=/usr/bin/zsh
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    export ZDOTDIR=/etc/zsh
 
 %runscript
-    exec "$@"
+    exec /bin/zsh -i
