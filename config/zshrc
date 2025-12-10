@@ -126,4 +126,6 @@ prompt pure
 
 alias s="singularity run --nv --env SSH_CONNECTION=\$SSH_CONNECTION --bind /tmp:/tmp --bind /pure/f1/conda/:/conda_envs --bind /pure:/pure --bind /ist:/ist --bind /ist-nas:/ist-nas /pure/f1/singularity/ubuntu.sif"
 alias b="source .base/bin/activate"
+alias g="/home/pakkapon/base/bin/python /home/pakkapon/dotfiles-mothership/scripts/lsgpu.py"
+alias gs="/home/pakkapon/base/bin/python /home/pakkapon/dotfiles-mothership/scripts/lsgpu.py --spec"
 
