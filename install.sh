@@ -16,7 +16,7 @@ echo_msg "Installing required packages: Zsh, git, and fzf..."
 sudo apt install -y zsh git fzf curl tmux htop python3 python3-pip python3-venv
 
 echo_msg "Set python as default python version..."
-sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+sudo apt install python-is-python3
 
 echo_msg "install tensorboard"
 
