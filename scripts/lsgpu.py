@@ -2,15 +2,12 @@
 import argparse
 import subprocess
 import os
-try:
-    from rich.live import Live
-    from rich.console import Console
-    from rich.table import Table
-    from rich.text import Text
-    from rich import box
-    from rich.spinner import Spinner
-except ImportError:
-    pass
+from rich.live import Live
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
+from rich import box
+from rich.spinner import Spinner
 
 from functools import partial
 from multiprocessing import Pool
