@@ -121,13 +121,9 @@ zstyle :prompt:pure:git:stash show yes
 
 prompt pure
 
-# PRE LOAD COMMAND
-source ~/.base/bin/activate
-
-
 # fzf configuration
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 alias s="singularity run --nv --env SSH_CONNECTION=\$SSH_CONNECTION --bind /tmp:/tmp --bind /pure/f1/conda/:/conda_envs --bind /pure:/pure --bind /ist:/ist --bind /ist-nas:/ist-nas /pure/f1/singularity/ubuntu.sif"
-
+alias b="source .base/bin/activate"
 
