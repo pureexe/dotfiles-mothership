@@ -1,0 +1,125 @@
+Host v1
+  HostName 10.204.100.101
+  User pakkapon
+
+Host v2
+  HostName 10.204.100.102
+  User pakkapon
+  
+Host v3
+  HostName 10.204.100.103
+  User pakkapon
+
+Host v4
+  HostName 10.204.100.104
+  User pakkapon
+
+Host v5
+  HostName 10.204.100.105
+  User pakkapon
+  
+Host v6
+  HostName 10.204.100.106
+  User pakkapon
+
+Host v7
+  HostName 10.204.100.107
+  User pakkapon
+
+Host v8
+  HostName 10.204.100.108
+  User pakkapon
+  
+Host v9
+  HostName 10.204.100.109
+  User pakkapon
+
+Host v10
+  HostName 10.204.100.110
+  User pakkapon
+
+Host v11
+  HostName 10.204.100.111
+  User pakkapon
+
+Host v12
+  HostName 10.204.100.112
+  User pakkapon
+
+Host v13
+  HostName 10.204.100.113
+  User pakkapon
+
+Host v14
+  HostName 10.204.100.114
+  User pakkapon
+
+Host v15
+  HostName 10.204.100.115
+  User pakkapon
+
+Host v16
+  HostName 10.204.100.116
+  User pakkapon
+
+Host v17
+  HostName 10.204.100.117
+  User pakkapon
+  
+Host v18
+  HostName 10.204.100.118
+  User pakkapon
+  
+Host v19
+  HostName 10.204.100.119
+  User pakkapon
+
+Host v20
+  HostName 10.204.100.120
+  User pakkapon
+
+Host v21
+  HostName 10.204.100.121
+  User pakkapon
+
+Host v22
+  HostName 10.204.100.122
+  User pakkapon
+
+Host v23
+  HostName 10.204.100.123
+  User pakkapon
+
+Host v24
+  HostName 10.204.100.124
+  User pakkapon
+
+Host browny
+  HostName 10.204.162.254
+  User pakkapon
+
+Host DGX1
+  HostName 10.204.100.191
+  User vision1
+
+Host v100
+  HostName 10.204.100.209
+  User pakkaponp
+  IdentityFile ~/.ssh/browny_rsa
+
+
+Host v100r
+  HostName 10.204.100.209
+  User root
+  
+Host ms
+  HostName 10.204.100.248
+  User pakkapon
+
+Host nas
+  HostName 10.204.100.129
+  User root
+  
+Host proxmox
+  HostName 10.204.100.247
+  User root
