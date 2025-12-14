@@ -124,8 +124,88 @@ prompt pure
 # fzf configuration
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+
+# classic run command
+
+run() {
+    # Usage:
+    #   run @v9g0 python hello.py
+
+    TARGET="$1"
+    shift
+    CMD="$*"
+
+    # Remove leading @
+    SPEC="${TARGET#@}"
+
+    # Parse host and GPU
+    HOST="${SPEC%%g*}"      # v9
+    GPU="${SPEC##*g}"       # 0
+
+    SESSION="run"
+    WINDOW="$SPEC"
+    CWD="$(pwd)"
+
+    # Create tmux session if it doesn't exist
+    if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+        tmux new-session -d -s "$SESSION"
+    fi
+
+    # Create new window
+    tmux new-window -t "$SESSION" -n "$WINDOW"
+
+    # SSH, run command, then keep shell alive
+    tmux send-keys -t "$SESSION:$WINDOW" \
+        "ssh -t $HOST 'cd \"$CWD\" && CUDA_VISIBLE_DEVICES=$GPU $CMD; exec \$SHELL'" C-m
+
+    # Attach to tmux
+    tmux attach -t "$SESSION"
+}
+
+# launch command for light
+lm() {
+    # Usage:
+    #   lm @v9g0 python hello.py
+
+    TARGET="$1"
+    shift
+    CMD="$*"
+
+    # Remove leading @
+    SPEC="${TARGET#@}"
+
+    # Parse host and GPU
+    HOST="${SPEC%%g*}"      # v9
+    GPU="${SPEC##*g}"       # 0
+
+    SESSION="run"
+    WINDOW="lm-$SPEC"
+    CWD="$(pwd)"
+
+    # Create tmux session if needed
+    if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+        tmux new-session -d -s "$SESSION"
+    fi
+
+    # Create new window
+    tmux new-window -t "$SESSION" -n "$WINDOW"
+
+    # Replace python with light-mesh run
+    REMOTE_CMD="/pure/f1/project/light-mesh/bin/run  ${CMD}"
+
+    # SSH, run command, keep shell alive
+    tmux send-keys -t "$SESSION:$WINDOW" \
+        "ssh -t $HOST 'cd \"$CWD\" && CUDA_VISIBLE_DEVICES=$GPU $REMOTE_CMD; exec \$SHELL'" C-m
+
+    # Attach
+    tmux attach -t "$SESSION"
+}
+
+
+
+
 alias s="singularity run --nv --env SSH_CONNECTION=\$SSH_CONNECTION --bind /tmp:/tmp --bind /pure/f1/conda/:/conda_envs --bind /pure:/pure --bind /ist:/ist --bind /ist-nas:/ist-nas /pure/f1/singularity/ubuntu.sif"
 alias b="source .base/bin/activate"
 alias g="/home/pakkapon/base/bin/python /home/pakkapon/dotfiles-mothership/scripts/lsgpu.py"
 alias gs="/home/pakkapon/base/bin/python /home/pakkapon/dotfiles-mothership/scripts/lsgpu.py --spec"
-
+alias gw="watch -n 120 /home/pakkapon/base/bin/python /home/pakkapon/dotfiles-mothership/scripts/lsgpu.py"
