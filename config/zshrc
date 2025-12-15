@@ -165,36 +165,43 @@ run() {
 # launch command for light
 lm() {
     # Usage:
-    #   lm @v9g0 python hello.py
+    #   lm @v5g0 python fit_single_light_x_axis_test.py
 
-    TARGET="$1"
+    local TARGET="$1"
     shift
-    CMD="$*"
+    local CMD="$*"
 
-    # Remove leading @
-    SPEC="${TARGET#@}"
+    local SPEC="${TARGET#@}"
+    local HOST="${SPEC%%g*}"      # v5
+    local GPU="${SPEC##*g}"       # 0
 
-    # Parse host and GPU
-    HOST="${SPEC%%g*}"      # v9
-    GPU="${SPEC##*g}"       # 0
+    local SESSION="light-mesh"
+    local WINDOW="$SPEC"
+    local CWD="$(pwd)"
 
-    SESSION="run"
-    WINDOW="lm-$SPEC"
-    CWD="$(pwd)"
-
-    # Create tmux session if needed
+    # Create session if needed
     if ! tmux has-session -t "$SESSION" 2>/dev/null; then
         tmux new-session -d -s "$SESSION"
     fi
 
-    # Create new window
-    tmux new-window -t "$SESSION" -n "$WINDOW"
+    # Create window or split pane
+    if tmux list-windows -t "$SESSION" | grep -q "^.*: $WINDOW"; then
+        # Horizontal split (left/right)
+        tmux split-window -h -t "$SESSION:$WINDOW"
+    else
+        tmux new-window -t "$SESSION" -n "$WINDOW"
+    fi
 
-    # Replace python with light-mesh run
-    REMOTE_CMD="/pure/f1/project/light-mesh/bin/run  ${CMD}"
+    # Equalize panes
+    tmux select-layout -t "$SESSION:$WINDOW" tiled
 
-    # SSH, run command, keep shell alive
-    tmux send-keys -t "$SESSION:$WINDOW" \
+    # Target newest pane
+    local PANE="$(tmux list-panes -t "$SESSION:$WINDOW" -F '#{pane_id}' | tail -n 1)"
+
+    local REMOTE_CMD="/pure/f1/project/light-mesh/bin/run ${CMD}"
+
+    # Run command and keep shell alive
+    tmux send-keys -t "$PANE" \
         "ssh -t $HOST 'cd \"$CWD\" && CUDA_VISIBLE_DEVICES=$GPU $REMOTE_CMD; exec \$SHELL'" C-m
 
     # Attach
@@ -205,7 +212,7 @@ lm() {
 
 
 alias s="singularity run --nv --env SSH_CONNECTION=\$SSH_CONNECTION --bind /tmp:/tmp --bind /pure/f1/conda/:/conda_envs --bind /pure:/pure --bind /ist:/ist --bind /ist-nas:/ist-nas /pure/f1/singularity/ubuntu.sif"
-alias b="source .base/bin/activate"
+alias b="source ~/base/bin/activate"
 alias g="/home/pakkapon/base/bin/python /home/pakkapon/dotfiles-mothership/scripts/lsgpu.py"
 alias gs="/home/pakkapon/base/bin/python /home/pakkapon/dotfiles-mothership/scripts/lsgpu.py --spec"
 alias gw="watch -n 120 /home/pakkapon/base/bin/python /home/pakkapon/dotfiles-mothership/scripts/lsgpu.py"
